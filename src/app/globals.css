@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-pearl: #f8f6f3;
+  --green-leaf: #4a7c59;
+  --green-leaf-dark: #3d6b4a;
+  --sand: #e8e4df;
+  --neutral-light: #d4d0c9;
+}
+
+body {
+  background-color: var(--bg-pearl);
+  color: #2c2c2c;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

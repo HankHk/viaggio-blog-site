@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none" opacity="0.15">
+  <path d="M50 100 Q60 80 80 90 Q70 110 50 100" fill="#4a7c59" transform="rotate(-30 65 95)"/>
+  <path d="M120 60 Q135 50 140 70 Q125 75 120 60" fill="#3d6b4a" transform="rotate(15 130 65)"/>
+  <path d="M100 150 Q115 140 120 160 Q105 165 100 150" fill="#4a7c59" transform="rotate(-15 110 155)"/>
+  <path d="M30 50 Q45 45 50 60 Q40 65 30 50" fill="#4a7c59" transform="rotate(40 40 55)"/>
+  <path d="M160 120 Q172 110 178 125 Q168 132 160 120" fill="#3d6b4a" transform="rotate(-20 169 122)"/>
+</svg>

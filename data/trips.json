@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Kyoto in primavera",
+    "slug": "kyoto-primavera",
+    "location": "Kyoto, Giappone",
+    "date": "Marzo 2024",
+    "description": "Templi avvolti dai ciliegi in fiore, giardini zen e la quiete dei vicoli di Gion. Un viaggio nel cuore del Giappone più autentico.",
+    "content": "Kyoto in primavera è un’esperienza che resta nel cuore. I ciliegi in fiore trasformano ogni angolo in un quadro: dal Fushimi Inari al sentiero del filosofo, ogni passo è una scoperta.\n\nI giardini zen invitano alla calma. Abbiamo trascorso ore nei templi di Kinkaku-ji e Ryoan-ji, dove il silenzio e la geometria delle pietre raccontano una filosofia antica.\n\nLe emozioni più intense? Il tramonto dal ponte di Arashiyama e una tazza di matcha in una casa da tè tradizionale, mentre fuori scendeva una pioggerella leggera.",
+    "images": ["https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200", "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=1200", "https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200"],
+    "tags": ["Giappone", "Natura", "Città", "Primavera"],
+    "curiosities": [
+      "Il sentiero del filosofo è lungo circa 2 km e segue un canale fiancheggiato da ciliegi.",
+      "A Gion, di sera, è possibile incontrare le geisha che si recano agli appuntamenti.",
+      "Il tempio Fushimi Inari conta oltre diecimila torii rossi donati da fedeli e aziende."
+    ]
+  },
+  {
+    "title": "Londra tra musei e parchi",
+    "slug": "londra-musei-parchi",
+    "location": "Londra, Regno Unito",
+    "date": "Giugno 2024",
+    "description": "Dai grandi musei ai parchi immensi, Londra offre eleganza urbana e spazi verdi. Una settimana tra arte, storia e tè pomeridiano.",
+    "content": "Londra unisce come poche città l’eleganza urbana e il respiro della natura. Abbiamo alternato mattine nei musei—il British Museum e la National Gallery—a passeggiate a Hyde Park e lungo il Tamigi.\n\nHighlights: il cambio della guardia a Buckingham Palace, un afternoon tea in un hotel storico e la vista dal Sky Garden al tramonto. I quartieri di Notting Hill e Camden hanno regalato colori e atmosfere diverse ogni giorno.\n\nConsiglio: prenotare in anticipo i musei gratuiti nei weekend per evitare code.",
+    "images": ["https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200", "https://images.unsplash.com/photo-1486299267070-83823f5448dd?w=1200", "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200"],
+    "tags": ["Europa", "Città", "Arte", "Natura"],
+    "curiosities": [
+      "Hyde Park è uno dei Parchi Reali e si estende per circa 142 ettari.",
+      "Il British Museum ospita oltre 8 milioni di oggetti; l’ingresso è gratuito.",
+      "Il Sky Garden è il giardino pensile più alto di Londra e offre vista a 360°."
+    ]
+  },
+  {
+    "title": "Santorini al tramonto",
+    "slug": "santorini-tramonto",
+    "location": "Santorini, Grecia",
+    "date": "Settembre 2024",
+    "description": "Case bianche e cupole blu su strapiombo sul mare. Tramonti indimenticabili e la cucina greca in un’isola da sogno.",
+    "content": "Santorini è esattamente come la si immagina: bianco e blu, vento leggero e tramonti che sembrano dipinti. Oia e Fira sono i punti più iconici, ma abbiamo amato anche i villaggi meno battuti come Imerovigli e Megalochori.\n\nLe emozioni: una cena con vista caldera, il vino locale nelle cantine di cave e un bagno nelle acque nere della spiaggia di Perissa. Il viaggio in barca verso il vulcano e le sorgenti termali è stata un’avventura da non perdere.\n\nConsiglio: prenotare un tavolo con vista tramonto con almeno un giorno di anticipo.",
+    "images": ["https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200", "https://images.unsplash.com/photo-1573843981267-be1999ff37cd?w=1200", "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200"],
+    "tags": ["Europa", "Mare", "Natura", "Romantico"],
+    "curiosities": [
+      "La caldera di Santorini è uno dei vulcani più attivi dell’Egeo.",
+      "Le case bianche e le cupole blu sono tipiche dell’architettura cicladica.",
+      "Il vino Assyrtiko, autoctono dell’isola, nasce da viti coltivate in terreni vulcanici."
+    ]
+  }
+]
