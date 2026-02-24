@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAllTrips, getTripBySlug, getAllSlugs } from "@/lib/trips";
+import { tripToBookPages } from "@/lib/tripBookPages";
 import { BackLink } from "@/components/trip/BackLink";
-import { TripHeader } from "@/components/trip/TripHeader";
-import { TripGallery } from "@/components/trip/TripGallery";
-import { TripCuriosities } from "@/components/trip/TripCuriosities";
+import { TripBook } from "@/components/trip/TripBook";
 import { DecorativePattern } from "@/components/ui/DecorativePattern";
 
 interface PageProps {
@@ -34,35 +33,16 @@ export default async function TripPage({ params }: PageProps) {
   const trip = getTripBySlug(slug);
   if (!trip) notFound();
 
+  const pages = tripToBookPages(trip);
+
   return (
     <article className="relative">
       <DecorativePattern variant="leaves" animated={false} className="opacity-50" />
-      <div className="relative z-10 mx-auto max-w-3xl px-4 py-12 sm:px-6">
-        <div className="mb-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <div className="mb-6">
           <BackLink />
         </div>
-
-        <TripHeader trip={trip} />
-
-        <div className="mt-12 border-t border-sand pt-12">
-          <div className="prose prose-neutral max-w-none">
-            <div className="whitespace-pre-line text-[#2c2c2c]/90 leading-relaxed">
-              {trip.content}
-            </div>
-          </div>
-        </div>
-
-        {trip.images.length > 1 && (
-          <div className="mt-16 border-t border-sand pt-12">
-            <TripGallery images={trip.images} />
-          </div>
-        )}
-
-        {trip.curiosities && trip.curiosities.length > 0 && (
-          <div className="mt-16 border-t border-sand pt-12">
-            <TripCuriosities curiosities={trip.curiosities} />
-          </div>
-        )}
+        <TripBook pages={pages} />
       </div>
     </article>
   );
