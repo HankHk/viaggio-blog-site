@@ -16,9 +16,14 @@ export function Navbar() {
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
         <Link
           href="/"
-          className="font-serif text-xl font-medium text-leaf transition-colors hover:text-leaf-dark"
+          className="flex flex-col sm:flex-row sm:items-baseline gap-0 sm:gap-1.5 transition-colors hover:text-leaf-dark text-leaf"
         >
-          Viaggio
+          <span className="font-serif text-lg sm:text-xl font-semibold leading-tight">
+            Between Places
+          </span>
+          <span className="font-sans text-xs sm:text-sm text-neutral-light font-normal">
+            a moving travel journal
+          </span>
         </Link>
         <ul className="flex gap-6">
           {navLinks.map(({ href, label }) => {

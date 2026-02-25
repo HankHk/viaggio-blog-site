@@ -13,11 +13,16 @@ export function HeroSection() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <h1 className="font-serif text-4xl font-medium text-[#2c2c2c] sm:text-5xl md:text-6xl">
-          Viaggio
+        <h1 className="text-center">
+          <span className="block font-serif text-4xl font-semibold text-[#2c2c2c] sm:text-5xl md:text-6xl tracking-tight">
+            Between Places
+          </span>
+          <span className="block mt-1 sm:mt-2 font-sans text-xl font-normal text-neutral-light sm:text-2xl md:text-3xl">
+            a moving travel journal
+          </span>
         </h1>
         <motion.p
-          className="mt-4 max-w-xl mx-auto font-sans text-lg text-neutral-light sm:text-xl"
+          className="mt-6 max-w-xl mx-auto font-sans text-base text-neutral-light sm:text-lg"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}

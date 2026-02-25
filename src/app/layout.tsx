@@ -19,11 +19,11 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Viaggio — Blog di viaggi",
-    template: "%s | Viaggio",
+    default: "Between Places - a moving travel journal",
+    template: "%s | Between Places",
   },
   description:
-    "Storie e luoghi dal mondo. Un blog di viaggi minimal e ispirazionale.",
+    "A moving travel journal. Storie e luoghi dal mondo, un passo alla volta.",
   openGraph: {
     type: "website",
   },

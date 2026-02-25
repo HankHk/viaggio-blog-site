@@ -19,7 +19,7 @@ export function Footer() {
           </Link>
         </div>
         <p className="mt-8 text-center text-xs text-neutral-light">
-          © {new Date().getFullYear()} Viaggio — Blog di viaggi
+          © {new Date().getFullYear()} Between Places — a moving travel journal
         </p>
       </div>
     </footer>
