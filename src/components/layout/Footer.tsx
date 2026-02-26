@@ -6,8 +6,8 @@ const quote =
 export function Footer() {
   return (
     <footer className="border-t border-sand bg-pearl mt-24">
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-        <blockquote className="font-serif text-lg italic text-neutral-light text-center max-w-2xl mx-auto mb-8">
+      <div className="mx-auto max-w-5xl px-3 py-8 sm:px-6 sm:py-12">
+        <blockquote className="font-serif text-base sm:text-lg italic text-neutral-light text-center max-w-2xl mx-auto mb-6 sm:mb-8">
           {quote}
         </blockquote>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-8">

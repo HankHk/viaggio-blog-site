@@ -34,7 +34,7 @@ export function TripCard({ trip, index, priority = false }: TripCardProps) {
                 priority={priority}
               />
             </div>
-            <div className="flex flex-1 flex-col justify-center p-5 sm:p-6">
+            <div className="flex flex-1 flex-col justify-center p-4 sm:p-6">
               <h2 className="font-serif text-xl font-semibold text-leaf group-hover:text-leaf-dark transition-colors">
                 {trip.title}
               </h2>

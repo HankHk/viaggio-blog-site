@@ -1,6 +1,6 @@
 /**
  * Cornice naturale (rami e foglie) che avvolge il sito.
- * L'immagine è mostrata solo ai bordi; il centro è trasparente così testo e contenuto restano visibili.
+ * Su mobile: larghezza 100% così i lati dell’immagine (piante) restano visibili; su desktop: cover.
  */
 
 const FRAME_IMAGE = "/frame/cornice-naturale.png";
@@ -8,13 +8,9 @@ const FRAME_IMAGE = "/frame/cornice-naturale.png";
 export function SiteFrame() {
   return (
     <div
-      className="fixed inset-0 z-30 pointer-events-none overflow-hidden"
+      className="site-frame-mask fixed inset-0 z-30 pointer-events-none overflow-hidden"
       aria-hidden
       style={{
-        maskImage:
-          "radial-gradient(ellipse 75% 75% at 50% 50%, transparent 55%, black 70%)",
-        WebkitMaskImage:
-          "radial-gradient(ellipse 75% 75% at 50% 50%, transparent 55%, black 70%)",
         maskSize: "100% 100%",
         maskPosition: "center",
         maskRepeat: "no-repeat",
@@ -23,11 +19,11 @@ export function SiteFrame() {
         WebkitMaskRepeat: "no-repeat",
       }}
     >
+      {/* Mobile: stretch 100% x 100% così la cornice copre tutta l'altezza e larghezza; desktop: cover */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 bg-center bg-no-repeat bg-[length:100%_100%] md:bg-cover"
         style={{
           backgroundImage: `url(${FRAME_IMAGE})`,
-          backgroundSize: "cover",
         }}
       />
     </div>

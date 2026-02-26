@@ -5,7 +5,7 @@ import { DecorativePattern } from "@/components/ui/DecorativePattern";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[50vh] flex flex-col items-center justify-center px-4 py-20 overflow-hidden">
+    <section className="relative min-h-[45vh] sm:min-h-[50vh] flex flex-col items-center justify-center px-3 py-12 sm:px-4 sm:py-20 overflow-hidden">
       <DecorativePattern variant="petals" animated />
       <motion.div
         className="relative z-10 text-center"

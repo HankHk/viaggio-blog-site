@@ -15,6 +15,34 @@ body {
   color: #2c2c2c;
 }
 
+/* Cornice: maschera ellittica; su mobile bordo un po’ più spesso così le piante restano visibili */
+.site-frame-mask {
+  mask-image: radial-gradient(
+    ellipse 75% 75% at 50% 50%,
+    transparent 50%,
+    black 72%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 75% 75% at 50% 50%,
+    transparent 50%,
+    black 72%
+  );
+}
+@media (min-width: 768px) {
+  .site-frame-mask {
+    mask-image: radial-gradient(
+      ellipse 75% 75% at 50% 50%,
+      transparent 55%,
+      black 70%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 75% 75% at 50% 50%,
+      transparent 55%,
+      black 70%
+    );
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
