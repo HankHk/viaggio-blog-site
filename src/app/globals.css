@@ -52,6 +52,22 @@ body::before {
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
 }
+/* Mobile: cornice meno invasiva (opacità + bordo un po' più stretto) */
+@media (max-width: 767px) {
+  body::before {
+    opacity: 0.78;
+    mask-image: radial-gradient(
+      ellipse 75% 75% at 50% 50%,
+      transparent 52%,
+      black 68%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 75% 75% at 50% 50%,
+      transparent 52%,
+      black 68%
+    );
+  }
+}
 @media (min-width: 768px) {
   body::before {
     background-size: cover;
