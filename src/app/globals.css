@@ -55,16 +55,16 @@ body::before {
 /* Mobile: cornice meno invasiva (opacità + bordo un po' più stretto) */
 @media (max-width: 767px) {
   body::before {
-    opacity: 0.65;
+    opacity: 0.95;
     mask-image: radial-gradient(
       ellipse 75% 75% at 50% 50%,
       transparent 60%,
-      black 75%
+      black 72%
     );
     -webkit-mask-image: radial-gradient(
       ellipse 75% 75% at 50% 50%,
       transparent 60%,
-      black 75%
+      black 77%
     );
   }
 }
