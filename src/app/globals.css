@@ -8,24 +8,32 @@
   --green-leaf-dark: #3d6b4a;
   --sand: #e8e4df;
   --neutral-light: #d4d0c9;
-  /* Fallback per altezza viewport: aggiornato via JS (--vh = 1% di window.innerHeight) per browser senza 100dvh */
-  --vh: 1vh;
 }
 
-/* Altezza stabile: 100dvh (viewport dinamico); fallback con --vh per browser meno recenti */
 html {
-  min-height: calc(var(--vh, 1vh) * 100);
-  min-height: 100dvh;
+  min-height: 100%;
 }
 body {
-  min-height: calc(var(--vh, 1vh) * 100);
-  min-height: 100dvh;
+  min-height: 100vh;
   background-color: var(--bg-pearl);
   color: #2c2c2c;
+  position: relative;
 }
 
-/* Cornice: maschera ellittica; su mobile bordo un po’ più spesso così le piante restano visibili */
-.site-frame-mask {
+/* Cornice naturale: pseudo-elemento FIXED (solo visivo, super stabile, niente JS/viewport) */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  pointer-events: none;
+  background-image: url("/frame/cornice-naturale.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   mask-image: radial-gradient(
     ellipse 75% 75% at 50% 50%,
     transparent 50%,
@@ -36,9 +44,16 @@ body {
     transparent 50%,
     black 72%
   );
+  mask-size: 100% 100%;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
 }
 @media (min-width: 768px) {
-  .site-frame-mask {
+  body::before {
+    background-size: cover;
     mask-image: radial-gradient(
       ellipse 75% 75% at 50% 50%,
       transparent 55%,
@@ -49,25 +64,6 @@ body {
       transparent 55%,
       black 70%
     );
-  }
-}
-
-/* Mobile: cornice fissa all’altezza viewport reale (100dvh + fallback --vh) */
-@media (max-width: 767px) {
-  .site-frame-mask {
-    height: calc(var(--vh, 1vh) * 100);
-    height: 100dvh;
-    min-height: calc(var(--vh, 1vh) * 100);
-    min-height: 100dvh;
-    width: 100vw;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: auto;
-  }
-  .site-frame-mask .site-frame-bg {
-    height: 100%;
-    min-height: 100%;
   }
 }
 
