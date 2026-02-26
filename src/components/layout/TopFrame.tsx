@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 /**
  * Cornice decorativa nella parte superiore della pagina: alberi stilizzati,
  * rami e petali ai lati sinistro e destro (specchiati), stile zen / primavera giapponese.
@@ -11,7 +13,7 @@ export function TopFrame() {
     >
       {/* Lato sinistro */}
       <div className="absolute left-0 top-0 bottom-0 w-[120px] sm:w-[160px] md:w-[200px]">
-        <img
+        <Image
           src="/frame/top-frame.svg"
           alt=""
           className="h-full w-auto object-cover object-left"
@@ -21,7 +23,7 @@ export function TopFrame() {
       </div>
       {/* Lato destro (stesso SVG specchiato) */}
       <div className="absolute right-0 top-0 bottom-0 w-[120px] sm:w-[160px] md:w-[200px]">
-        <img
+        <Image
           src="/frame/top-frame.svg"
           alt=""
           className="h-full w-auto object-cover object-right scale-x-[-1]"

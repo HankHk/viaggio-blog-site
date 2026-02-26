@@ -18,16 +18,17 @@ export function ViewportHeightProvider() {
     setViewportHeight();
 
     window.addEventListener("resize", setViewportHeight);
-    if (typeof window.visualViewport !== "undefined") {
-      window.visualViewport.addEventListener("resize", setViewportHeight);
-      window.visualViewport.addEventListener("scroll", setViewportHeight);
+    const vp = window.visualViewport;
+    if (vp) {
+      vp.addEventListener("resize", setViewportHeight);
+      vp.addEventListener("scroll", setViewportHeight);
     }
 
     return () => {
       window.removeEventListener("resize", setViewportHeight);
-      if (typeof window.visualViewport !== "undefined") {
-        window.visualViewport.removeEventListener("resize", setViewportHeight);
-        window.visualViewport.removeEventListener("scroll", setViewportHeight);
+      if (vp) {
+        vp.removeEventListener("resize", setViewportHeight);
+        vp.removeEventListener("scroll", setViewportHeight);
       }
     };
   }, []);
