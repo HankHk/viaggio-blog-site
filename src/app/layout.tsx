@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { ViewportHeightProvider } from "@/components/layout/ViewportHeightProvider";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -36,7 +37,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen min-h-[100dvh] font-sans antialiased flex flex-col">
+      <body className="min-h-screen font-sans antialiased flex flex-col">
+        <ViewportHeightProvider />
         <Navbar />
         <main className="flex-1 flex-shrink-0">{children}</main>
         <Footer />
