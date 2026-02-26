@@ -36,9 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" className={`${playfair.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen font-sans antialiased">
+      <body className="min-h-screen min-h-[100dvh] font-sans antialiased flex flex-col">
         <Navbar />
-        <main>{children}</main>
+        <main className="flex-1 flex-shrink-0">{children}</main>
         <Footer />
         <SiteFrame />
       </body>

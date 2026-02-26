@@ -10,7 +10,14 @@
   --neutral-light: #d4d0c9;
 }
 
+/* Su mobile: viewport dinamico (100dvh) per evitare gap quando la barra del browser si nasconde allo scroll */
+html {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
 body {
+  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-pearl);
   color: #2c2c2c;
 }
@@ -40,6 +47,24 @@ body {
       transparent 55%,
       black 70%
     );
+  }
+}
+
+/* Mobile: cornice fissa a 100dvh così non resta gap quando la barra del browser si nasconde */
+@media (max-width: 767px) {
+  .site-frame-mask {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100dvh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+  }
+  .site-frame-mask .site-frame-bg {
+    height: 100%;
+    min-height: 100%;
   }
 }
 

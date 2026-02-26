@@ -21,7 +21,7 @@ export function SiteFrame() {
     >
       {/* Mobile: stretch 100% x 100% così la cornice copre tutta l'altezza e larghezza; desktop: cover */}
       <div
-        className="absolute inset-0 bg-center bg-no-repeat bg-[length:100%_100%] md:bg-cover"
+        className="site-frame-bg absolute inset-0 bg-center bg-no-repeat bg-[length:100%_100%] md:bg-cover"
         style={{
           backgroundImage: `url(${FRAME_IMAGE})`,
         }}
