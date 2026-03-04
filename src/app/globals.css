@@ -12,9 +12,11 @@
 
 html {
   min-height: 100%;
+  overflow-x: clip;
 }
 body {
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg-pearl);
   color: #2c2c2c;
   position: relative;
@@ -24,11 +26,7 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100lvh;
+  inset: 0;
   z-index: 30;
   pointer-events: none;
   background-image: url("/frame/cornice-naturale.png");
