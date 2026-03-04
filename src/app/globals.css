@@ -16,8 +16,6 @@ html {
 }
 body {
   min-height: 100vh;
-  min-height: 100dvh;
-  overscroll-behavior-y: none;
   background-color: var(--bg-pearl);
   color: #2c2c2c;
   position: relative;
