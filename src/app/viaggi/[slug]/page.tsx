@@ -4,6 +4,7 @@ import { getAllTrips, getTripBySlug, getAllSlugs } from "@/lib/trips";
 import { tripToBookPages } from "@/lib/tripBookPages";
 import { BackLink } from "@/components/trip/BackLink";
 import { TripBook } from "@/components/trip/TripBook";
+import { TripPageZoom } from "@/components/trip/TripPageZoom";
 import { DecorativePattern } from "@/components/ui/DecorativePattern";
 
 interface PageProps {
@@ -36,14 +37,16 @@ export default async function TripPage({ params }: PageProps) {
   const pages = tripToBookPages(trip);
 
   return (
-    <article className="relative">
-      <DecorativePattern variant="leaves" animated={false} className="opacity-50" />
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        <div className="mb-6">
-          <BackLink />
+    <TripPageZoom>
+      <article className="relative">
+        <DecorativePattern variant="leaves" animated={false} className="opacity-50" />
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <div className="mb-6">
+            <BackLink />
+          </div>
+          <TripBook pages={pages} />
         </div>
-        <TripBook pages={pages} />
-      </div>
-    </article>
+      </article>
+    </TripPageZoom>
   );
 }

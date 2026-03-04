@@ -51,6 +51,11 @@ body::before {
   -webkit-mask-size: 100% 100%;
   -webkit-mask-position: center;
   -webkit-mask-repeat: no-repeat;
+  transition: opacity 0.9s ease-out;
+}
+/* Pagina viaggio: cornice scompare (effetto "entrare nella foresta") */
+body.trip-page::before {
+  opacity: 0;
 }
 /* Mobile: cornice meno invasiva (opacità + bordo un po' più stretto) */
 @media (max-width: 767px) {
