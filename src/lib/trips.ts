@@ -6,7 +6,7 @@ import type { Trip } from "@/types/trip";
 const TRIPS_BLOB_PATHNAME = "trips.json";
 const TRIPS_FILE = path.join(process.cwd(), "data", "trips.json");
 
-function useBlobStorage(): boolean {
+function isBlobStorageEnabled(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
@@ -17,7 +17,7 @@ async function loadTripsFromFile(): Promise<Trip[]> {
 
 
 async function loadTrips(): Promise<Trip[]> {
-  if (useBlobStorage()) {
+  if (isBlobStorageEnabled()) {
     try {
       const result = await get(TRIPS_BLOB_PATHNAME, { access: "private" });
       if (result && result.statusCode === 200 && result.stream) {
@@ -65,7 +65,7 @@ export async function getAllSlugs(): Promise<string[]> {
 }
 
 export async function saveTrips(trips: Trip[]): Promise<void> {
-  if (useBlobStorage()) {
+  if (isBlobStorageEnabled()) {
     await saveTripsToBlob(trips);
     return;
   }
