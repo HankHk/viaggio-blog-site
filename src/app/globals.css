@@ -59,20 +59,14 @@ body::before {
 body.trip-page::before {
   opacity: 0;
 }
-/* Mobile: cornice meno invasiva (opacità + bordo un po' più stretto) */
+/* Admin (login, lista, creazione, modifica viaggi): cornice sempre nascosta */
+body.admin-page::before {
+  opacity: 0;
+}
+/* Mobile: cornice nascosta (come in pagina viaggio) */
 @media (max-width: 767px) {
   body::before {
-    opacity: 0.95;
-    mask-image: radial-gradient(
-      ellipse 75% 75% at 50% 50%,
-      transparent 60%,
-      black 72%
-    );
-    -webkit-mask-image: radial-gradient(
-      ellipse 75% 75% at 50% 50%,
-      transparent 60%,
-      black 77%
-    );
+    opacity: 0;
   }
 }
 @media (min-width: 768px) {

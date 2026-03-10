@@ -43,7 +43,11 @@ export async function loginAction(_prev: unknown, formData: FormData): Promise<{
   const password = formData.get("password") as string | null;
   if (!password?.trim()) return { error: "Inserisci la password." };
   const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return { error: "Configurazione admin mancante." };
+  if (!expected)
+    return {
+      error:
+        "Variabile ADMIN_PASSWORD mancante. Su Vercel: Project → Settings → Environment Variables, aggiungi ADMIN_PASSWORD, poi rifai il deploy.",
+    };
   const hash = (s: string) => createHmac("sha256", "admin-login").update(s).digest();
   if (!timingSafeEqual(hash(password.trim()), hash(expected)))
     return { error: "Password non corretta." };
@@ -140,5 +144,22 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
     redirect(`/viaggi/${trip.slug}`);
   } catch {
     return { success: false, copyJson: JSON.stringify(trip, null, 2) };
+  }
+}
+
+export async function deleteTripAction(slug: string): Promise<{ error?: string }> {
+  const ok = await isAdminSession();
+  if (!ok) return { error: "Sessione scaduta. Esegui di nuovo l'accesso." };
+
+  const trips = await getAllTrips();
+  const filtered = trips.filter((t) => t.slug !== slug);
+  if (filtered.length === trips.length)
+    return { error: "Viaggio non trovato." };
+
+  try {
+    await saveTrips(filtered);
+    redirect("/admin");
+  } catch {
+    return { error: "Impossibile eliminare il viaggio." };
   }
 }

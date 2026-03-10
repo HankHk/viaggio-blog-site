@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AdminFrameHide } from "./AdminFrameHide";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -10,5 +11,10 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <AdminFrameHide />
+      {children}
+    </>
+  );
 }
