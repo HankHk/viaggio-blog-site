@@ -8,7 +8,10 @@ const MAX_PARAGRAPHS_PER_PAGE = 2;
  * Suddivide il contenuto testuale in blocchi per pagina (per paragrafi, max caratteri).
  */
 function splitContentIntoPages(content: string): string[] {
-  const paragraphs = content
+  const normalized = (content ?? "")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n");
+  const paragraphs = normalized
     .split(/\n\n+/)
     .map((p) => p.trim())
     .filter(Boolean);

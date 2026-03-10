@@ -4,8 +4,10 @@ import { TripList } from "@/components/home/TripList";
 import { TravelPatch } from "@/components/home/TravelPatch";
 import { travelPatches } from "@/data/travelPatches";
 
-export default function HomePage() {
-  const trips = getAllTrips();
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const trips = await getAllTrips();
 
   return (
     <div className="relative min-h-screen">

@@ -1,23 +1,21 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllTrips, getTripBySlug, getAllSlugs } from "@/lib/trips";
+import { getTripBySlug } from "@/lib/trips";
 import { tripToBookPages } from "@/lib/tripBookPages";
 import { BackLink } from "@/components/trip/BackLink";
 import { TripBook } from "@/components/trip/TripBook";
 import { TripPageZoom } from "@/components/trip/TripPageZoom";
 import { DecorativePattern } from "@/components/ui/DecorativePattern";
 
+export const dynamic = "force-dynamic";
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  return getAllSlugs().map((slug) => ({ slug }));
-}
-
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const trip = getTripBySlug(slug);
+  const trip = await getTripBySlug(slug);
   if (!trip) return { title: "Viaggio non trovato" };
   return {
     title: trip.title,
@@ -31,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TripPage({ params }: PageProps) {
   const { slug } = await params;
-  const trip = getTripBySlug(slug);
+  const trip = await getTripBySlug(slug);
   if (!trip) notFound();
 
   const pages = tripToBookPages(trip);

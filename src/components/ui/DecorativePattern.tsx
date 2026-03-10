@@ -35,8 +35,8 @@ export function DecorativePattern({
         animate={
           animated
             ? {
-                opacity: [0.6, 0.5, 0.6],
-                scale: [1, 1.12, 1],
+                opacity: [0.6, 0.9, 0.6],
+                scale: [1, 1.02, 1],
               }
             : undefined
         }
