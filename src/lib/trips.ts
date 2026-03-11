@@ -7,6 +7,7 @@ const TRIPS_BLOB_PATHNAME = "trips.json";
 const TRIPS_FILE = path.join(process.cwd(), "data", "trips.json");
 
 function isBlobStorageEnabled(): boolean {
+  if (process.env.NODE_ENV === "development") return false;
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 

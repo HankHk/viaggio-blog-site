@@ -59,7 +59,9 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
   const [draftTripMeta, setDraftTripMeta] = useState<DraftMeta>(
     initialTrip ? tripToDraftMeta(initialTrip) : emptyMeta
   );
-  const [draftContent, setDraftContent] = useState(initialTrip?.content ?? "");
+  const [draftParagraphs, setDraftParagraphs] = useState<string[]>(
+    initialTrip?.content?.length ? initialTrip.content : [""]
+  );
   const [state, formAction] = useActionState(addTripAction, null);
   const [copyLabel, setCopyLabel] = useState(defaultCopyLabel);
 
@@ -206,21 +208,54 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
         <input type="hidden" name="tags" value={draftTripMeta.tags.join("\n")} readOnly />
         <input type="hidden" name="curiosities" value={draftTripMeta.curiosities.join("\n")} readOnly />
         <div className="space-y-4 rounded-lg border border-sand bg-[var(--bg-pearl)] p-6 shadow">
-          <label htmlFor="content" className="block text-sm font-medium text-[#2c2c2c]">
-            Contenuto (testo del diario)
-          </label>
-          <p className="text-sm text-[#2c2c2c]/70">
-            Scrivi il testo del diario. Separa i paragrafi con una riga vuota; verranno impaginati automaticamente nel diario.
-          </p>
-          <textarea
-            id="content"
-            name="content"
-            rows={20}
-            value={draftContent}
-            onChange={(e) => setDraftContent(e.target.value)}
-            className="w-full rounded border border-sand bg-white px-3 py-2 font-sans text-sm"
-            placeholder="Primo paragrafo...&#10;&#10;Secondo paragrafo..."
-          />
+          <div>
+            <p className="text-sm font-medium text-[#2c2c2c]">Contenuto del diario</p>
+            <p className="mt-0.5 text-xs text-[#2c2c2c]/70">
+              Ogni paragrafo corrisponde a un blocco di testo nel diario. Il sistema impagina
+              automaticamente i paragrafi nelle pagine del libro.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {draftParagraphs.map((para, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#2c2c2c]/60">
+                    Paragrafo {i + 1}
+                  </span>
+                  {draftParagraphs.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDraftParagraphs((prev) => prev.filter((_, idx) => idx !== i))
+                      }
+                      className="text-xs text-red-500 hover:text-red-700"
+                    >
+                      Rimuovi
+                    </button>
+                  )}
+                </div>
+                <textarea
+                  name="content"
+                  rows={6}
+                  value={para}
+                  onChange={(e) =>
+                    setDraftParagraphs((prev) =>
+                      prev.map((p, idx) => (idx === i ? e.target.value : p))
+                    )
+                  }
+                  className="w-full rounded border border-sand bg-white px-3 py-2 font-sans text-sm"
+                  placeholder={`Testo del paragrafo ${i + 1}…`}
+                />
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setDraftParagraphs((prev) => [...prev, ""])}
+            className="rounded border border-[var(--green-leaf)] px-4 py-2 text-sm font-medium text-[var(--green-leaf)] hover:bg-[var(--green-leaf)]/10"
+          >
+            + Aggiungi paragrafo
+          </button>
         </div>
         {state?.success && (
           <p className="text-sm text-green-600" role="status">
@@ -265,7 +300,7 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
             type="submit"
             className="rounded bg-[var(--green-leaf)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--green-leaf-dark)]"
           >
-            {isEdit ? "Salva modifiche" : "Salva viaggio"}
+            {isEdit ? "Salva modifiche" : "Completa viaggio"}
           </button>
         </div>
       </form>

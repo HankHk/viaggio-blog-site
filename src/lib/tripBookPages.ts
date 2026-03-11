@@ -5,23 +5,19 @@ const MAX_CHARS_PER_TEXT_PAGE = 750;
 const MAX_PARAGRAPHS_PER_PAGE = 2;
 
 /**
- * Suddivide il contenuto testuale in blocchi per pagina (per paragrafi, max caratteri).
+ * Distribuisce un array di paragrafi in pagine (max 2 paragrafi / 750 caratteri per pagina).
  */
-function splitContentIntoPages(content: string): string[] {
-  const normalized = (content ?? "")
-    .replace(/\r\n/g, "\n")
-    .replace(/\r/g, "\n");
-  const paragraphs = normalized
-    .split(/\n\n+/)
-    .map((p) => p.trim())
+function splitContentIntoPages(paragraphs: string[]): string[] {
+  const filtered = (paragraphs ?? [])
+    .map((p) => p.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim())
     .filter(Boolean);
-  if (paragraphs.length === 0) return [];
+  if (filtered.length === 0) return [];
 
   const pages: string[] = [];
   let currentPage: string[] = [];
   let currentLength = 0;
 
-  for (const para of paragraphs) {
+  for (const para of filtered) {
     const wouldExceed =
       currentLength + para.length > MAX_CHARS_PER_TEXT_PAGE ||
       currentPage.length >= MAX_PARAGRAPHS_PER_PAGE;

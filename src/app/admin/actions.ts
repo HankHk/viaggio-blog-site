@@ -91,7 +91,9 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
   const location = (formData.get("location") as string)?.trim();
   const date = (formData.get("date") as string)?.trim();
   const description = (formData.get("description") as string)?.trim();
-  const content = (formData.get("content") as string)?.trim();
+  const content = (formData.getAll("content") as string[])
+    .map((s) => s.trim())
+    .filter(Boolean);
   const imagesRaw = (formData.get("images") as string)?.trim();
   const tagsRaw = (formData.get("tags") as string)?.trim();
   const curiositiesRaw = (formData.get("curiosities") as string)?.trim();
@@ -116,7 +118,7 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
       location: location || "",
       date: date || "",
       description: description || "",
-      content: content || "",
+      content,
       images: imagesToUse,
       tags: parseList(tagsRaw || ""),
     };
@@ -131,7 +133,7 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
       location: location || "",
       date: date || "",
       description: description || "",
-      content: content || "",
+      content,
       images: imagesToUse,
       tags: parseList(tagsRaw || ""),
     };
@@ -147,9 +149,15 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
   }
 }
 
-export async function deleteTripAction(slug: string): Promise<{ error?: string }> {
+export async function deleteTripAction(
+  _prev: { error?: string } | null,
+  formData: FormData
+): Promise<{ error?: string }> {
   const ok = await isAdminSession();
   if (!ok) return { error: "Sessione scaduta. Esegui di nuovo l'accesso." };
+
+  const slug = (formData.get("slug") as string)?.trim();
+  if (!slug) return { error: "Slug mancante." };
 
   const trips = await getAllTrips();
   const filtered = trips.filter((t) => t.slug !== slug);
@@ -159,7 +167,8 @@ export async function deleteTripAction(slug: string): Promise<{ error?: string }
   try {
     await saveTrips(filtered);
     redirect("/admin");
-  } catch {
-    return { error: "Impossibile eliminare il viaggio." };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Impossibile eliminare il viaggio.";
+    return { error: message };
   }
 }

@@ -4,7 +4,7 @@ export interface Trip {
   location: string;
   date: string;
   description: string;
-  content: string;
+  content: string[];
   images: string[];
   tags: string[];
   /** Sezione curiosità o highlight (opzionale) */
