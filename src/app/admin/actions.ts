@@ -144,7 +144,11 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
   try {
     await saveTrips(trips);
     redirect(`/viaggi/${trip.slug}`);
-  } catch {
+  } catch (err) {
+    // Next.js redirect() lancia un'eccezione per attivare il reindirizzamento: non trattarla come errore di scrittura
+    if (err && typeof err === "object" && "digest" in err && String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
     return { success: false, copyJson: JSON.stringify(trip, null, 2) };
   }
 }
@@ -168,6 +172,9 @@ export async function deleteTripAction(
     await saveTrips(filtered);
     redirect("/admin");
   } catch (err) {
+    if (err && typeof err === "object" && "digest" in err && String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")) {
+      throw err;
+    }
     const message = err instanceof Error ? err.message : "Impossibile eliminare il viaggio.";
     return { error: message };
   }
