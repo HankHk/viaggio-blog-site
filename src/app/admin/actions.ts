@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createHmac, timingSafeEqual } from "crypto";
 import { getAllTrips, saveTrips } from "@/lib/trips";
-import type { Trip } from "@/types/trip";
+import type { Trip, ContentBlock } from "@/types/trip";
 
 const COOKIE_NAME = "admin_session";
 const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000; // 1 giorno
@@ -91,9 +91,32 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
   const location = (formData.get("location") as string)?.trim();
   const date = (formData.get("date") as string)?.trim();
   const description = (formData.get("description") as string)?.trim();
-  const content = (formData.getAll("content") as string[])
-    .map((s) => s.trim())
-    .filter(Boolean);
+  let content: ContentBlock[];
+  try {
+    const contentJson = (formData.get("contentJson") as string)?.trim();
+    if (!contentJson) {
+      content = [];
+    } else {
+      const raw = JSON.parse(contentJson) as unknown;
+      if (!Array.isArray(raw)) {
+        return { success: false, error: "Formato contenuto non valido." };
+      }
+      content = raw.map((item: unknown): ContentBlock => {
+        if (typeof item === "string") return { text: item };
+        const o = item as Record<string, unknown>;
+        const text = typeof o.text === "string" ? o.text : "";
+        const title = typeof o.title === "string" && o.title.trim() ? o.title.trim() : undefined;
+        const images = Array.isArray(o.images)
+          ? (o.images as unknown[]).filter((u): u is string => typeof u === "string")
+          : undefined;
+        return { title, text, images: images?.length ? images : undefined };
+      });
+    }
+  } catch {
+    return { success: false, error: "Formato contenuto del diario non valido (JSON)." };
+  }
+  const hasContent = content.some((b) => (b.text ?? "").trim().length > 0);
+  if (!hasContent) return { success: false, error: "Inserisci almeno un blocco con testo." };
   const imagesRaw = (formData.get("images") as string)?.trim();
   const tagsRaw = (formData.get("tags") as string)?.trim();
   const curiositiesRaw = (formData.get("curiosities") as string)?.trim();

@@ -18,9 +18,9 @@ export interface BookPageData {
   date?: string;
   /** Copertina destra: URL immagine */
   coverImage?: string;
-  /** Pagina testo */
+  /** Pagina testo: corpo del paragrafo; tipo text può usare anche title (titolo blocco) e images (foto blocco) */
   text?: string;
-  /** Pagina galleria */
+  /** Pagina galleria: elenco URL. Pagina testo: immagini del blocco (opzionale). */
   images?: string[];
   /** Pagina curiosità */
   curiosities?: string[];

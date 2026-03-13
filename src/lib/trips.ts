@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { get, put } from "@vercel/blob";
-import type { Trip } from "@/types/trip";
+import type { Trip, ContentBlock } from "@/types/trip";
 
 const TRIPS_BLOB_PATHNAME = "trips.json";
 const TRIPS_FILE = path.join(process.cwd(), "data", "trips.json");
@@ -11,9 +11,26 @@ function isBlobStorageEnabled(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
+/** Converte content da formato legacy (string[]) a ContentBlock[] se necessario. */
+export function normalizeTrip(trip: Trip): Trip {
+  const raw = trip.content;
+  if (!Array.isArray(raw)) return { ...trip, content: [] };
+  const content: ContentBlock[] = raw.map((item): ContentBlock => {
+    if (typeof item === "string") return { text: item };
+    const block = item as ContentBlock;
+    return {
+      title: block.title,
+      text: block.text ?? "",
+      images: block.images,
+    };
+  });
+  return { ...trip, content };
+}
+
 async function loadTripsFromFile(): Promise<Trip[]> {
   const data = await readFile(TRIPS_FILE, "utf-8");
-  return JSON.parse(data) as Trip[];
+  const trips = JSON.parse(data) as Trip[];
+  return trips.map(normalizeTrip);
 }
 
 
@@ -23,7 +40,8 @@ async function loadTrips(): Promise<Trip[]> {
       const result = await get(TRIPS_BLOB_PATHNAME, { access: "private" });
       if (result && result.statusCode === 200 && result.stream) {
         const text = await new Response(result.stream).text();
-        return JSON.parse(text || "[]") as Trip[];
+        const parsed = JSON.parse(text || "[]") as Trip[];
+        return parsed.map(normalizeTrip);
       }
     } catch {
       // Errore di rete o blob non trovato

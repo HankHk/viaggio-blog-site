@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { addTripAction } from "./actions";
-import type { Trip } from "@/types/trip";
+import type { Trip, ContentBlock } from "@/types/trip";
 
 const defaultCopyLabel = "Copia JSON";
 
@@ -59,8 +59,10 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
   const [draftTripMeta, setDraftTripMeta] = useState<DraftMeta>(
     initialTrip ? tripToDraftMeta(initialTrip) : emptyMeta
   );
-  const [draftParagraphs, setDraftParagraphs] = useState<string[]>(
-    initialTrip?.content?.length ? initialTrip.content : [""]
+  const [draftBlocks, setDraftBlocks] = useState<ContentBlock[]>(
+    initialTrip?.content?.length
+      ? initialTrip.content.map((b) => ({ title: b.title, text: b.text, images: b.images ?? [] }))
+      : [{ text: "" }]
   );
   const [state, formAction] = useActionState(addTripAction, null);
   const [copyLabel, setCopyLabel] = useState(defaultCopyLabel);
@@ -207,26 +209,30 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
         <input type="hidden" name="images" value={draftTripMeta.images.join("\n")} readOnly />
         <input type="hidden" name="tags" value={draftTripMeta.tags.join("\n")} readOnly />
         <input type="hidden" name="curiosities" value={draftTripMeta.curiosities.join("\n")} readOnly />
+        <input
+          type="hidden"
+          name="contentJson"
+          value={JSON.stringify(draftBlocks.map((b) => ({ title: b.title || undefined, text: b.text, images: b.images?.length ? b.images : undefined })))}
+          readOnly
+        />
         <div className="space-y-4 rounded-lg border border-sand bg-[var(--bg-pearl)] p-6 shadow">
           <div>
             <p className="text-sm font-medium text-[#2c2c2c]">Contenuto del diario</p>
             <p className="mt-0.5 text-xs text-[#2c2c2c]/70">
-              Ogni paragrafo corrisponde a un blocco di testo nel diario. Il sistema impagina
-              automaticamente i paragrafi nelle pagine del libro.
+              Ogni blocco può avere un titolo (opzionale), il testo e eventuali immagini (URL uno per riga).
+              Il sistema impagina automaticamente nelle pagine del libro.
             </p>
           </div>
-          <div className="space-y-3">
-            {draftParagraphs.map((para, i) => (
-              <div key={i} className="space-y-1">
+          <div className="space-y-4">
+            {draftBlocks.map((block, i) => (
+              <div key={i} className="space-y-2 rounded border border-sand/60 bg-white p-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-[#2c2c2c]/60">
-                    Paragrafo {i + 1}
-                  </span>
-                  {draftParagraphs.length > 1 && (
+                  <span className="text-xs font-medium text-[#2c2c2c]/60">Blocco {i + 1}</span>
+                  {draftBlocks.length > 1 && (
                     <button
                       type="button"
                       onClick={() =>
-                        setDraftParagraphs((prev) => prev.filter((_, idx) => idx !== i))
+                        setDraftBlocks((prev) => prev.filter((_, idx) => idx !== i))
                       }
                       className="text-xs text-red-500 hover:text-red-700"
                     >
@@ -234,27 +240,63 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
                     </button>
                   )}
                 </div>
-                <textarea
-                  name="content"
-                  rows={6}
-                  value={para}
-                  onChange={(e) =>
-                    setDraftParagraphs((prev) =>
-                      prev.map((p, idx) => (idx === i ? e.target.value : p))
-                    )
-                  }
-                  className="w-full rounded border border-sand bg-white px-3 py-2 font-sans text-sm"
-                  placeholder={`Testo del paragrafo ${i + 1}…`}
-                />
+                <div>
+                  <label className="mb-0.5 block text-xs font-medium text-[#2c2c2c]/70">Titolo (opzionale)</label>
+                  <input
+                    type="text"
+                    value={block.title ?? ""}
+                    onChange={(e) =>
+                      setDraftBlocks((prev) =>
+                        prev.map((b, idx) =>
+                          idx === i ? { ...b, title: e.target.value || undefined } : b
+                        )
+                      )
+                    }
+                    className="w-full rounded border border-sand bg-white px-3 py-2 text-sm"
+                    placeholder="es. 12 agosto - Partenza"
+                  />
+                </div>
+                <div>
+                  <label className="mb-0.5 block text-xs font-medium text-[#2c2c2c]/70">Testo *</label>
+                  <textarea
+                    rows={6}
+                    value={block.text}
+                    onChange={(e) =>
+                      setDraftBlocks((prev) =>
+                        prev.map((b, idx) => (idx === i ? { ...b, text: e.target.value } : b))
+                      )
+                    }
+                    className="w-full rounded border border-sand bg-white px-3 py-2 font-sans text-sm"
+                    placeholder={`Testo del blocco ${i + 1}…`}
+                  />
+                </div>
+                <div>
+                  <label className="mb-0.5 block text-xs font-medium text-[#2c2c2c]/70">Immagini (URL uno per riga, opzionale)</label>
+                  <textarea
+                    rows={2}
+                    value={(block.images ?? []).join("\n")}
+                    onChange={(e) =>
+                      setDraftBlocks((prev) =>
+                        prev.map((b, idx) =>
+                          idx === i
+                            ? { ...b, images: parseList(e.target.value) }
+                            : b
+                        )
+                      )
+                    }
+                    className="w-full rounded border border-sand bg-white px-3 py-2 font-mono text-sm"
+                    placeholder="https://..."
+                  />
+                </div>
               </div>
             ))}
           </div>
           <button
             type="button"
-            onClick={() => setDraftParagraphs((prev) => [...prev, ""])}
+            onClick={() => setDraftBlocks((prev) => [...prev, { text: "" }])}
             className="rounded border border-[var(--green-leaf)] px-4 py-2 text-sm font-medium text-[var(--green-leaf)] hover:bg-[var(--green-leaf)]/10"
           >
-            + Aggiungi paragrafo
+            + Aggiungi blocco
           </button>
         </div>
         {state?.success && (
