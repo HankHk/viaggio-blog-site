@@ -12,10 +12,24 @@ interface TextPagePayload {
 const MAX_CHARS_PER_TEXT_PAGE = 750;
 const MAX_PARAGRAPHS_PER_PAGE = 2;
 
+/** Peso fisso assegnato a un paragrafo che è solo un'immagine Markdown `![alt](url)`. */
+const MARKDOWN_IMAGE_WEIGHT = 200;
+
+/** Restituisce true se il paragrafo è esclusivamente una o più righe immagine Markdown. */
+function isMarkdownImageParagraph(para: string): boolean {
+  return para
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .every((l) => /^!\[.*?\]\(.+?\)$/.test(l));
+}
+
 /**
  * Spezza un testo lungo in chunk di al massimo maxChars, preferendo tagli dopo \n o spazio.
+ * I paragrafi che contengono solo immagini Markdown non vengono mai spezzati.
  */
 function splitLongText(text: string, maxChars: number): string[] {
+  if (isMarkdownImageParagraph(text)) return [text];
   if (text.length <= maxChars) return [text];
   const chunks: string[] = [];
   let rest = text;
@@ -43,6 +57,9 @@ function splitLongText(text: string, maxChars: number): string[] {
  * Distribuisce i paragrafi in pagine: nessuna pagina supera MAX_CHARS_PER_TEXT_PAGE
  * e al massimo MAX_PARAGRAPHS_PER_PAGE paragrafi. I paragrafi lunghi vengono spezzati
  * in più pagine così tutto il testo è leggibile senza tagli.
+ * Le righe di immagini Markdown `![alt](url)` sono atomiche e non vengono mai spezzate:
+ * vengono conteggiate con un peso fisso (MARKDOWN_IMAGE_WEIGHT) indipendentemente dalla
+ * lunghezza dell'URL.
  */
 function splitParagraphsIntoPageTexts(paragraphs: string[]): string[] {
   const filtered = (paragraphs ?? [])
@@ -55,9 +72,12 @@ function splitParagraphsIntoPageTexts(paragraphs: string[]): string[] {
   let currentLength = 0;
 
   for (const para of filtered) {
-    // Se il paragrafo da solo supera il limite, spezzalo in più chunk
-    if (para.length > MAX_CHARS_PER_TEXT_PAGE) {
-      // Flush pagina corrente prima di aggiungere i chunk
+    const isImage = isMarkdownImageParagraph(para);
+    const paraWeight = isImage ? MARKDOWN_IMAGE_WEIGHT : para.length;
+
+    // I paragrafi di testo puro troppo lunghi vengono spezzati in più chunk.
+    // Le righe immagine Markdown non vengono mai spezzate (isImage = true).
+    if (!isImage && para.length > MAX_CHARS_PER_TEXT_PAGE) {
       if (currentPage.length > 0) {
         pages.push(currentPage.join("\n\n"));
         currentPage = [];
@@ -71,7 +91,7 @@ function splitParagraphsIntoPageTexts(paragraphs: string[]): string[] {
     }
 
     const wouldExceed =
-      currentLength + para.length > MAX_CHARS_PER_TEXT_PAGE ||
+      currentLength + paraWeight > MAX_CHARS_PER_TEXT_PAGE ||
       currentPage.length >= MAX_PARAGRAPHS_PER_PAGE;
 
     if (wouldExceed && currentPage.length > 0) {
@@ -81,7 +101,7 @@ function splitParagraphsIntoPageTexts(paragraphs: string[]): string[] {
     }
 
     currentPage.push(para);
-    currentLength += para.length;
+    currentLength += paraWeight;
   }
 
   if (currentPage.length > 0) {

@@ -1,31 +1,34 @@
 "use client";
 
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { BookPageData } from "@/types/book";
 
 interface BookPageFaceProps {
   page: BookPageData;
-  /** Per stile consistente con le pagine del libro (altezza/area contenuto) */
   className?: string;
 }
 
-/**
- * Singola faccia di una pagina del libro: contenuto + stile "pagina" (carta, padding) e backface-hidden.
- */
 export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
   const base =
-    "h-full w-full min-h-0 overflow-auto bg-[var(--bg-pearl)] border border-sand/80 shadow-md flex flex-col [backface-visibility:hidden] " +
+    "h-full w-full min-h-0 overflow-y-auto overflow-x-hidden bg-[var(--bg-pearl)] border border-sand/80 shadow-md flex flex-col [backface-visibility:hidden] " +
     className;
 
   switch (page.type) {
     case "cover-left":
       return (
-        <div className={base + " justify-center px-5 py-6 sm:px-6 sm:py-8 md:px-8 md:py-10"}>
+        <div
+          className={
+            base +
+            " justify-center px-4 py-5 sm:px-6 sm:py-8 md:px-8 md:py-10"
+          }
+        >
           <h1 className="font-serif text-xl font-medium text-[#2c2c2c] sm:text-2xl md:text-3xl">
             {page.title}
           </h1>
-          <p className="mt-3 text-neutral-light text-sm sm:text-base">
-            {page.location} · {page.date}
+          <p className="mt-2 text-neutral-light text-sm sm:mt-3 sm:text-base">
+            {page.location} &middot; {page.date}
           </p>
         </div>
       );
@@ -39,38 +42,91 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
             alt=""
             fill
             className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 50vw"
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
       );
 
     case "text":
       return (
-        <div className={base + " px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8"}>
-          <div className="prose prose-neutral max-w-none flex-1">
+        <div
+          className={
+            base + " px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-8"
+          }
+        >
+          <div className="prose prose-neutral max-w-none flex-1 min-h-0">
             {page.title && (
-              <h2 className="font-serif text-lg font-medium text-[var(--green-leaf)] mb-2 sm:text-xl sm:mb-3">
+              <h2 className="font-serif text-base font-semibold text-[var(--green-leaf)] mb-1.5 sm:text-lg sm:mb-2 md:text-xl md:mb-3">
                 {page.title}
               </h2>
             )}
             {page.text && (
-              <div className="whitespace-pre-line text-[#2c2c2c]/90 leading-relaxed text-base sm:text-base md:text-base">
-                {page.text}
+              <div className="text-[#2c2c2c]/90 leading-relaxed text-sm sm:text-base max-w-full">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ children }) => (
+                      <h2 className="font-serif text-base font-semibold text-[#2c2c2c] mb-1.5 sm:text-lg sm:mb-2 md:text-xl">
+                        {children}
+                      </h2>
+                    ),
+                    h2: ({ children }) => (
+                      <h3 className="font-serif text-sm font-semibold text-[#2c2c2c] mb-1.5 sm:text-base sm:mb-2 md:text-lg">
+                        {children}
+                      </h3>
+                    ),
+                    h3: ({ children }) => (
+                      <h4 className="font-serif text-sm font-semibold text-[#2c2c2c] mb-1 sm:text-base">
+                        {children}
+                      </h4>
+                    ),
+                    p: ({ children }) => (
+                      <p className="mb-2 last:mb-0 sm:mb-3">{children}</p>
+                    ),
+                    img: ({ src, alt }) => (
+                      <span className="my-2 flex justify-center sm:my-3">
+                        <img
+                          src={src ?? ""}
+                          alt={alt ?? ""}
+                          className="max-w-full w-auto max-h-[30vh] sm:max-h-[35vh] md:max-h-[40vh] object-contain rounded-lg"
+                        />
+                      </span>
+                    ),
+                    a: ({ href, children }) => (
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[var(--green-leaf)] underline underline-offset-2"
+                      >
+                        {children}
+                      </a>
+                    ),
+                    strong: ({ children }) => (
+                      <strong className="font-semibold">{children}</strong>
+                    ),
+                    em: ({ children }) => (
+                      <em className="italic">{children}</em>
+                    ),
+                  }}
+                >
+                  {page.text}
+                </ReactMarkdown>
               </div>
             )}
             {page.images && page.images.length > 0 && (
-              <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <ul className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-2">
                 {page.images.map((src, i) => (
                   <li
                     key={i}
-                    className="relative aspect-[4/3] overflow-hidden rounded-lg bg-sand"
+                    className="relative aspect-[16/10] max-h-[25vh] sm:max-h-[200px] overflow-hidden rounded-lg bg-sand"
                   >
                     <Image
                       src={src}
                       alt=""
                       fill
                       className="object-cover"
-                      sizes="(max-width: 640px) 100vw, 50vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                     />
                   </li>
                 ))}
@@ -83,20 +139,26 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
     case "gallery":
       if (!page.images?.length) return <div className={base} />;
       return (
-        <div className={base + " px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8"}>
-          <h2 className="font-serif text-lg font-medium text-leaf mb-3 sm:text-xl sm:mb-4">Galleria</h2>
-          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div
+          className={
+            base + " px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-8"
+          }
+        >
+          <h2 className="font-serif text-base font-medium text-leaf mb-2 sm:text-lg sm:mb-3 md:text-xl md:mb-4">
+            Galleria
+          </h2>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
             {page.images.map((src, i) => (
               <li
                 key={i}
-                className="relative aspect-[4/3] overflow-hidden rounded-lg bg-sand"
+                className="relative aspect-[16/10] max-h-[25vh] sm:max-h-[200px] overflow-hidden rounded-lg bg-sand"
               >
                 <Image
                   src={src}
                   alt=""
                   fill
                   className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 50vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                 />
               </li>
             ))}
@@ -107,11 +169,20 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
     case "curiosities":
       if (!page.curiosities?.length) return <div className={base} />;
       return (
-        <div className={base + " px-5 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8"}>
-          <h2 className="font-serif text-lg font-medium text-leaf mb-3 sm:text-xl sm:mb-4">Curiosità</h2>
-          <ul className="space-y-2">
+        <div
+          className={
+            base + " px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-8"
+          }
+        >
+          <h2 className="font-serif text-base font-medium text-leaf mb-2 sm:text-lg sm:mb-3 md:text-xl md:mb-4">
+            Curiosit&agrave;
+          </h2>
+          <ul className="space-y-1.5 sm:space-y-2">
             {page.curiosities.map((text, i) => (
-              <li key={i} className="flex gap-2 text-[#2c2c2c]/90 text-base">
+              <li
+                key={i}
+                className="flex gap-2 text-[#2c2c2c]/90 text-sm sm:text-base"
+              >
                 <span
                   className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-leaf"
                   aria-hidden

@@ -269,6 +269,13 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
                     className="w-full rounded border border-sand bg-white px-3 py-2 font-sans text-sm"
                     placeholder={`Testo del blocco ${i + 1}…`}
                   />
+                  <p className="mt-1 text-xs text-[#2c2c2c]/50">
+                    Markdown supportato:{" "}
+                    <code className="rounded bg-sand/60 px-1">**grassetto**</code>,{" "}
+                    <code className="rounded bg-sand/60 px-1">*corsivo*</code>,{" "}
+                    <code className="rounded bg-sand/60 px-1">[link](url)</code>,{" "}
+                    <code className="rounded bg-sand/60 px-1">![immagine](url)</code> (su riga separata per posizionarla).
+                  </p>
                 </div>
                 <div>
                   <label className="mb-0.5 block text-xs font-medium text-[#2c2c2c]/70">Immagini (URL uno per riga, opzionale)</label>
