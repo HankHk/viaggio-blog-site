@@ -2,18 +2,17 @@ import type { Trip, ContentBlock } from "@/types/trip";
 import type { BookPageData } from "@/types/book";
 import { normalizeTrip } from "@/lib/trips";
 
-/** Una pagina di testo del libro (titolo e immagini opzionali). */
 interface TextPagePayload {
   title?: string;
-  text: string;
+  text?: string;
   images?: string[];
 }
 
-const MAX_CHARS_PER_TEXT_PAGE = 750;
+const MAX_CHARS_PER_TEXT_PAGE = 600;
 const MAX_PARAGRAPHS_PER_PAGE = 2;
 
 /** Peso fisso assegnato a un paragrafo che è solo un'immagine Markdown `![alt](url)`. */
-const MARKDOWN_IMAGE_WEIGHT = 200;
+const MARKDOWN_IMAGE_WEIGHT = 500;
 
 /** Restituisce true se il paragrafo è esclusivamente una o più righe immagine Markdown. */
 function isMarkdownImageParagraph(para: string): boolean {
@@ -112,19 +111,29 @@ function splitParagraphsIntoPageTexts(paragraphs: string[]): string[] {
 }
 
 /**
- * Converte ContentBlock[] in sequenza di pagine testo con titolo/immagini sulla prima pagina di ogni blocco.
+ * Converte ContentBlock[] in sequenza di pagine.
+ * Le immagini del blocco vengono incluse nella prima pagina di testo del blocco.
  */
 function contentBlocksToTextPages(blocks: ContentBlock[]): TextPagePayload[] {
   const result: TextPagePayload[] = [];
   for (const block of blocks) {
     const text = (block.text ?? "").replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+    const hasImages = block.images && block.images.length > 0;
+
+    if (!text && hasImages) {
+      result.push({ title: block.title, images: block.images });
+      continue;
+    }
+
     if (!text) continue;
-    const textChunks = splitParagraphsIntoPageTexts([text]);
+
+    const paragraphs = text.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+    const textChunks = splitParagraphsIntoPageTexts(paragraphs);
     for (let i = 0; i < textChunks.length; i++) {
       result.push({
         title: i === 0 ? block.title : undefined,
         text: textChunks[i],
-        images: i === 0 && block.images?.length ? block.images : undefined,
+        images: i === 0 && hasImages ? block.images : undefined,
       });
     }
   }

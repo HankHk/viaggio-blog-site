@@ -1,13 +1,19 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  animate,
+} from "framer-motion";
 import type { BookPageData } from "@/types/book";
 import { BookPageFace } from "./BookPageFace";
 
-const FLIP_DURATION = 0.6;
-const EASING = [0.33, 1, 0.68, 1] as const;
 const MD_BREAKPOINT = 768;
+const FLIP_DURATION = 0.6;
+const FLIP_EASE: [number, number, number, number] = [0.45, 0.05, 0.55, 0.95];
 
 interface TripBookProps {
   pages: BookPageData[];
@@ -19,34 +25,46 @@ function spreadCount(pages: BookPageData[]) {
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
-
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < MD_BREAKPOINT);
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
   return isMobile;
 }
 
+type FlipState = "idle" | "flipping-next" | "flipping-prev";
+
 export function TripBook({ pages }: TripBookProps) {
+  const isMobile = useIsMobile();
+  const mobilePages = pages.filter((p) => p.type !== "blank");
   const totalSpreads = spreadCount(pages);
-  const totalPages = pages.length;
+  const totalMobilePages = mobilePages.length;
 
   const [currentSpread, setCurrentSpread] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [flipDirection, setFlipDirection] = useState<"next" | "prev" | null>(
-    null,
+  const [flipState, setFlipState] = useState<FlipState>("idle");
+  const [mobileDirection, setMobileDirection] = useState(0);
+
+  const flipRotation = useMotionValue(0);
+  const flipProgress = useTransform(flipRotation, (v) => Math.abs(v) / 180);
+  const frontOpacity = useTransform(
+    flipProgress,
+    [0, 0.49, 0.5, 1],
+    [1, 1, 0, 0],
   );
-  const [mounted, setMounted] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
-  const isMobile = useIsMobile();
+  const backOpacity = useTransform(
+    flipProgress,
+    [0, 0.49, 0.5, 1],
+    [0, 0, 1, 1],
+  );
+  const shadowIntensity = useTransform(
+    flipProgress,
+    [0, 0.5, 1],
+    [0, 0.3, 0],
+  );
 
-  useEffect(() => setMounted(true), []);
-
-  /* Sync mobile page <-> desktop spread when switching between modes */
   useEffect(() => {
     if (isMobile) {
       setCurrentPage(currentSpread * 2);
@@ -58,45 +76,54 @@ export function TripBook({ pages }: TripBookProps) {
 
   const canGoPrev = isMobile ? currentPage > 0 : currentSpread > 0;
   const canGoNext = isMobile
-    ? currentPage < totalPages - 1
+    ? currentPage < totalMobilePages - 1
     : currentSpread < totalSpreads - 1;
 
   const goNext = useCallback(() => {
-    if (!canGoNext || isFlipping) return;
     if (isMobile) {
+      if (currentPage >= totalMobilePages - 1) return;
+      setMobileDirection(1);
       setCurrentPage((p) => p + 1);
-      return;
+    } else {
+      if (flipState !== "idle" || currentSpread >= totalSpreads - 1) return;
+      setFlipState("flipping-next");
     }
-    if (mounted && prefersReducedMotion) {
-      setCurrentSpread((s) => s + 1);
-      return;
-    }
-    setFlipDirection("next");
-    setIsFlipping(true);
-  }, [canGoNext, isFlipping, isMobile, mounted, prefersReducedMotion]);
+  }, [isMobile, currentPage, totalMobilePages, flipState, currentSpread, totalSpreads]);
 
   const goPrev = useCallback(() => {
-    if (!canGoPrev || isFlipping) return;
     if (isMobile) {
+      if (currentPage <= 0) return;
+      setMobileDirection(-1);
       setCurrentPage((p) => p - 1);
-      return;
+    } else {
+      if (flipState !== "idle" || currentSpread <= 0) return;
+      setFlipState("flipping-prev");
     }
-    if (mounted && prefersReducedMotion) {
-      setCurrentSpread((s) => s - 1);
-      return;
-    }
-    setFlipDirection("prev");
-    setIsFlipping(true);
-  }, [canGoPrev, isFlipping, isMobile, mounted, prefersReducedMotion]);
+  }, [isMobile, currentPage, flipState, currentSpread]);
 
-  const flipDuration = mounted && prefersReducedMotion ? 0 : FLIP_DURATION;
+  useEffect(() => {
+    if (flipState === "idle") return;
 
-  const onFlipComplete = useCallback(() => {
-    if (flipDirection === "next") setCurrentSpread((s) => s + 1);
-    if (flipDirection === "prev") setCurrentSpread((s) => s - 1);
-    setFlipDirection(null);
-    setIsFlipping(false);
-  }, [flipDirection]);
+    flipRotation.set(0);
+    const target = flipState === "flipping-next" ? -180 : 180;
+    const captured = flipState;
+
+    const controls = animate(flipRotation, target, {
+      duration: FLIP_DURATION,
+      ease: FLIP_EASE,
+      onComplete: () => {
+        if (captured === "flipping-next") {
+          setCurrentSpread((s) => s + 1);
+        } else {
+          setCurrentSpread((s) => s - 1);
+        }
+        setFlipState("idle");
+      },
+    });
+
+    return () => controls.stop();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flipState]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -112,7 +139,6 @@ export function TripBook({ pages }: TripBookProps) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goPrev, goNext]);
 
-  /* Touch swipe for mobile: horizontal swipe navigates, vertical scrolls */
   const touchStartRef = useRef({ x: 0, y: 0 });
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartRef.current = {
@@ -132,26 +158,39 @@ export function TripBook({ pages }: TripBookProps) {
     [goNext, goPrev],
   );
 
-  /* Desktop spread pages */
-  const leftPageIndex = currentSpread * 2;
-  const rightPageIndex = currentSpread * 2 + 1;
-  const leftPage = pages[leftPageIndex];
-  const rightPage = pages[rightPageIndex];
-  const prevRightPage =
-    leftPageIndex >= 2 ? pages[leftPageIndex - 1] : null;
+  const leftPage = pages[currentSpread * 2];
+  const rightPage = pages[currentSpread * 2 + 1];
+
   const nextLeftPage =
-    rightPageIndex + 1 < pages.length ? pages[rightPageIndex + 1] : null;
+    currentSpread < totalSpreads - 1
+      ? pages[(currentSpread + 1) * 2]
+      : null;
+  const nextRightPage =
+    currentSpread < totalSpreads - 1
+      ? pages[(currentSpread + 1) * 2 + 1]
+      : null;
+  const prevLeftPage =
+    currentSpread > 0 ? pages[(currentSpread - 1) * 2] : null;
+  const prevRightPage =
+    currentSpread > 0 ? pages[(currentSpread - 1) * 2 + 1] : null;
 
   const pageIndicator = isMobile
-    ? `${currentPage + 1} / ${totalPages}`
+    ? `${currentPage + 1} / ${totalMobilePages}`
     : `${currentSpread + 1} / ${totalSpreads}`;
 
   const navBtnClass =
     "rounded-lg border border-sand bg-[var(--bg-pearl)] px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-[#2c2c2c] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-sand/50 transition-colors";
 
+  const isFlipping = flipState !== "idle";
+
+  const mobileVariants = {
+    enter: (d: number) => ({ opacity: 0, x: d > 0 ? 60 : -60 }),
+    center: { opacity: 1, x: 0 },
+    exit: (d: number) => ({ opacity: 0, x: d > 0 ? -60 : 60 }),
+  };
+
   return (
     <div className="flex flex-col items-center gap-4 py-4 md:gap-6 md:py-8">
-      {/* Navigation controls */}
       <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
         <button
           type="button"
@@ -179,17 +218,14 @@ export function TripBook({ pages }: TripBookProps) {
         </button>
       </div>
 
-      {/* Book container */}
       <div
         className="w-full max-w-5xl mx-auto px-2 sm:px-4"
-        style={{ perspective: isMobile ? undefined : "2000px" }}
         role="region"
         aria-label="Libro del viaggio"
       >
         {isMobile ? (
-          /* ===== MOBILE: single-page view ===== */
           <div
-            className="relative w-full rounded-xl bg-sand/30 shadow-xl"
+            className="relative w-full rounded-xl bg-sand/30 shadow-xl overflow-hidden"
             style={{
               height: "min(68vh, 520px)",
               boxShadow: "0 15px 40px -10px rgba(0,0,0,0.12)",
@@ -197,29 +233,40 @@ export function TripBook({ pages }: TripBookProps) {
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >
-            <div className="h-full">
-              <BookPageFace page={pages[currentPage]} />
-            </div>
+            <AnimatePresence mode="wait" custom={mobileDirection}>
+              <motion.div
+                key={currentPage}
+                custom={mobileDirection}
+                variants={mobileVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="absolute inset-0"
+              >
+                <BookPageFace page={mobilePages[currentPage]} />
+              </motion.div>
+            </AnimatePresence>
           </div>
         ) : (
-          /* ===== DESKTOP: spread (2-page) view ===== */
           <div
-            className="relative flex w-full rounded-xl overflow-hidden bg-sand/30 shadow-xl"
+            className="relative w-full rounded-xl bg-sand/30 shadow-xl overflow-hidden"
             style={{
               height: "min(70vh, 560px)",
               boxShadow: "0 25px 50px -12px rgba(0,0,0,0.15)",
+              perspective: "1800px",
             }}
           >
             {/* Center spine */}
             <div
-              className="absolute left-1/2 top-0 bottom-0 w-px z-10 bg-sand/80 -translate-x-px"
+              className="absolute left-1/2 top-0 bottom-0 w-px z-[5] bg-sand/80 -translate-x-px"
               aria-hidden
             />
 
-            {/* Click zones: narrow strips along the edges instead of full overlay */}
+            {/* Edge click zones */}
             <button
               type="button"
-              className="absolute left-0 top-0 bottom-0 w-12 z-20 cursor-pointer opacity-0 hover:opacity-100 transition-opacity flex items-center justify-start pl-2 disabled:cursor-default"
+              className="absolute left-0 top-0 bottom-0 w-12 z-[40] cursor-pointer opacity-0 hover:opacity-100 transition-opacity flex items-center justify-start pl-2 disabled:cursor-default"
               onClick={goPrev}
               disabled={!canGoPrev || isFlipping}
               aria-label="Volta pagina indietro"
@@ -230,7 +277,7 @@ export function TripBook({ pages }: TripBookProps) {
             </button>
             <button
               type="button"
-              className="absolute right-0 top-0 bottom-0 w-12 z-20 cursor-pointer opacity-0 hover:opacity-100 transition-opacity flex items-center justify-end pr-2 disabled:cursor-default"
+              className="absolute right-0 top-0 bottom-0 w-12 z-[40] cursor-pointer opacity-0 hover:opacity-100 transition-opacity flex items-center justify-end pr-2 disabled:cursor-default"
               onClick={goNext}
               disabled={!canGoNext || isFlipping}
               aria-label="Volta pagina avanti"
@@ -240,115 +287,137 @@ export function TripBook({ pages }: TripBookProps) {
               </span>
             </button>
 
-            <div
-              className="flex w-full h-full"
-              style={{ height: "min(70vh, 560px)" }}
-            >
-              {/* Left page */}
-              <div
-                className="relative w-1/2 flex-shrink-0"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {currentSpread > 0 && prevRightPage ? (
-                  <motion.div
-                    className="absolute inset-0 flex"
-                    style={{
-                      transformStyle: "preserve-3d",
-                      transformOrigin: "right center",
-                    }}
-                    initial={false}
-                    animate={{
-                      rotateY: flipDirection === "prev" ? 0 : -180,
-                    }}
-                    transition={{ duration: flipDuration, ease: EASING }}
-                    onAnimationComplete={
-                      flipDirection === "prev" ? onFlipComplete : undefined
-                    }
-                  >
-                    <div
-                      className="absolute inset-0 w-full h-full"
-                      style={{ backfaceVisibility: "hidden" }}
-                    >
-                      <div className="h-full w-full rounded-l-lg overflow-hidden">
-                        <BookPageFace page={prevRightPage} />
-                      </div>
+            {flipState === "flipping-next" &&
+            nextLeftPage &&
+            nextRightPage ? (
+              <>
+                {/* Layer 0: next spread (background, revealed as page turns) */}
+                <div className="absolute inset-0 flex">
+                  <div className="w-1/2 h-full shrink-0">
+                    <div className="h-full w-full rounded-l-lg overflow-hidden">
+                      <BookPageFace page={nextLeftPage} />
                     </div>
-                    <div
-                      className="absolute inset-0 w-full h-full"
-                      style={{
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)",
-                      }}
-                    >
-                      <div className="h-full w-full rounded-l-lg overflow-hidden">
-                        <BookPageFace page={leftPage} />
-                      </div>
+                  </div>
+                  <div className="w-1/2 h-full shrink-0">
+                    <div className="h-full w-full rounded-r-lg overflow-hidden">
+                      <BookPageFace page={nextRightPage} />
                     </div>
-                  </motion.div>
-                ) : (
+                  </div>
+                </div>
+
+                {/* Layer 1: current left page masks left half of background */}
+                <div className="absolute top-0 left-0 w-1/2 h-full z-[1]">
                   <div className="h-full w-full rounded-l-lg overflow-hidden">
                     <BookPageFace page={leftPage} />
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Right page */}
-              <div
-                className="relative w-1/2 flex-shrink-0"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {currentSpread < totalSpreads - 1 && nextLeftPage ? (
+                {/* Shadow cast on the page being revealed */}
+                <motion.div
+                  className="absolute top-0 right-0 w-1/2 h-full z-[2] pointer-events-none"
+                  style={{
+                    opacity: shadowIntensity,
+                    background:
+                      "linear-gradient(to right, rgba(0,0,0,0.4), transparent 70%)",
+                  }}
+                />
+
+                {/* Layer 2: flipping page (right half turns onto left) */}
+                <motion.div
+                  className="absolute top-0 right-0 w-1/2 h-full z-[3]"
+                  style={{
+                    rotateY: flipRotation,
+                    transformOrigin: "left center",
+                  }}
+                >
                   <motion.div
-                    className="absolute inset-0 flex"
-                    style={{
-                      transformStyle: "preserve-3d",
-                      transformOrigin: "left center",
-                    }}
-                    initial={false}
-                    animate={{
-                      rotateY: flipDirection === "next" ? -180 : 0,
-                    }}
-                    transition={{ duration: flipDuration, ease: EASING }}
-                    onAnimationComplete={
-                      flipDirection === "next" ? onFlipComplete : undefined
-                    }
+                    className="absolute inset-0 rounded-r-lg overflow-hidden"
+                    style={{ opacity: frontOpacity }}
                   >
-                    <div
-                      className="absolute inset-0 w-full h-full"
-                      style={{ backfaceVisibility: "hidden" }}
-                    >
-                      <div className="h-full w-full rounded-r-lg overflow-hidden">
-                        <BookPageFace page={rightPage} />
-                      </div>
-                    </div>
-                    <div
-                      className="absolute inset-0 w-full h-full"
-                      style={{
-                        backfaceVisibility: "hidden",
-                        transform: "rotateY(180deg)",
-                      }}
-                    >
-                      <div className="h-full w-full rounded-r-lg overflow-hidden">
-                        <BookPageFace page={nextLeftPage} />
-                      </div>
-                    </div>
+                    <BookPageFace page={rightPage} />
                   </motion.div>
-                ) : (
+                  <motion.div
+                    className="absolute inset-0 rounded-l-lg overflow-hidden"
+                    style={{ opacity: backOpacity, scaleX: -1 }}
+                  >
+                    <BookPageFace page={nextLeftPage} />
+                  </motion.div>
+                </motion.div>
+              </>
+            ) : flipState === "flipping-prev" &&
+              prevLeftPage &&
+              prevRightPage ? (
+              <>
+                {/* Layer 0: prev spread (background, revealed as page turns) */}
+                <div className="absolute inset-0 flex">
+                  <div className="w-1/2 h-full shrink-0">
+                    <div className="h-full w-full rounded-l-lg overflow-hidden">
+                      <BookPageFace page={prevLeftPage} />
+                    </div>
+                  </div>
+                  <div className="w-1/2 h-full shrink-0">
+                    <div className="h-full w-full rounded-r-lg overflow-hidden">
+                      <BookPageFace page={prevRightPage} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Layer 1: current right page masks right half of background */}
+                <div className="absolute top-0 right-0 w-1/2 h-full z-[1]">
                   <div className="h-full w-full rounded-r-lg overflow-hidden">
                     <BookPageFace page={rightPage} />
                   </div>
-                )}
+                </div>
+
+                {/* Shadow cast on the page being revealed */}
+                <motion.div
+                  className="absolute top-0 left-0 w-1/2 h-full z-[2] pointer-events-none"
+                  style={{
+                    opacity: shadowIntensity,
+                    background:
+                      "linear-gradient(to left, rgba(0,0,0,0.4), transparent 70%)",
+                  }}
+                />
+
+                {/* Layer 2: flipping page (left half turns onto right) */}
+                <motion.div
+                  className="absolute top-0 left-0 w-1/2 h-full z-[3]"
+                  style={{
+                    rotateY: flipRotation,
+                    transformOrigin: "right center",
+                  }}
+                >
+                  <motion.div
+                    className="absolute inset-0 rounded-l-lg overflow-hidden"
+                    style={{ opacity: frontOpacity }}
+                  >
+                    <BookPageFace page={leftPage} />
+                  </motion.div>
+                  <motion.div
+                    className="absolute inset-0 rounded-r-lg overflow-hidden"
+                    style={{ opacity: backOpacity, scaleX: -1 }}
+                  >
+                    <BookPageFace page={prevRightPage} />
+                  </motion.div>
+                </motion.div>
+              </>
+            ) : (
+              <div className="flex w-full h-full">
+                <div className="w-1/2 h-full shrink-0">
+                  <div className="h-full w-full rounded-l-lg overflow-hidden">
+                    <BookPageFace page={leftPage} />
+                  </div>
+                </div>
+                <div className="w-1/2 h-full shrink-0">
+                  <div className="h-full w-full rounded-r-lg overflow-hidden">
+                    <BookPageFace page={rightPage} />
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
-
-      {mounted && prefersReducedMotion && (
-        <p className="text-xs text-[#2c2c2c]/60" role="status">
-          Animazione ridotta per preferenze di accessibilit&agrave;.
-        </p>
-      )}
     </div>
   );
 }

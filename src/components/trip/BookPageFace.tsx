@@ -12,7 +12,7 @@ interface BookPageFaceProps {
 
 export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
   const base =
-    "h-full w-full min-h-0 overflow-y-auto overflow-x-hidden bg-[var(--bg-pearl)] border border-sand/80 shadow-md flex flex-col [backface-visibility:hidden] " +
+    "h-full w-full min-h-0 overflow-hidden bg-[var(--bg-pearl)] border border-sand/80 shadow-md flex flex-col " +
     className;
 
   switch (page.type) {
@@ -54,14 +54,15 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
             base + " px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-8"
           }
         >
-          <div className="prose prose-neutral max-w-none flex-1 min-h-0">
-            {page.title && (
-              <h2 className="font-serif text-base font-semibold text-[var(--green-leaf)] mb-1.5 sm:text-lg sm:mb-2 md:text-xl md:mb-3">
-                {page.title}
-              </h2>
-            )}
-            {page.text && (
-              <div className="text-[#2c2c2c]/90 leading-relaxed text-sm sm:text-base max-w-full">
+          {page.title && (
+            <h2 className="font-serif text-base font-semibold text-[var(--green-leaf)] mb-1.5 shrink-0 sm:text-lg sm:mb-2 md:text-xl md:mb-3">
+              {page.title}
+            </h2>
+          )}
+
+          {page.text && (
+            <div className="prose prose-neutral prose-img:my-2 max-w-none flex-1 min-h-0 overflow-hidden">
+              <div className="text-[#2c2c2c]/90 leading-relaxed text-sm sm:text-base">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
@@ -88,7 +89,7 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
                         <img
                           src={src ?? ""}
                           alt={alt ?? ""}
-                          className="max-w-full w-auto max-h-[30vh] sm:max-h-[35vh] md:max-h-[40vh] object-contain rounded-lg"
+                          className="max-w-full w-auto max-h-[180px] sm:max-h-[200px] object-contain rounded-lg"
                         />
                       </span>
                     ),
@@ -113,26 +114,27 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
                   {page.text}
                 </ReactMarkdown>
               </div>
-            )}
-            {page.images && page.images.length > 0 && (
-              <ul className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-2">
-                {page.images.map((src, i) => (
-                  <li
-                    key={i}
-                    className="relative aspect-[16/10] max-h-[25vh] sm:max-h-[200px] overflow-hidden rounded-lg bg-sand"
-                  >
-                    <Image
-                      src={src}
-                      alt=""
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+            </div>
+          )}
+
+          {page.images && page.images.length > 0 && (
+            <ul className="mt-3 grid grid-cols-1 gap-2 shrink-0 sm:mt-4 sm:grid-cols-2">
+              {page.images.map((src, i) => (
+                <li
+                  key={i}
+                  className="relative aspect-[16/10] overflow-hidden rounded-lg bg-sand"
+                >
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       );
 
@@ -144,14 +146,14 @@ export function BookPageFace({ page, className = "" }: BookPageFaceProps) {
             base + " px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-8"
           }
         >
-          <h2 className="font-serif text-base font-medium text-leaf mb-2 sm:text-lg sm:mb-3 md:text-xl md:mb-4">
+          <h2 className="font-serif text-base font-medium text-leaf mb-2 shrink-0 sm:text-lg sm:mb-3 md:text-xl md:mb-4">
             Galleria
           </h2>
           <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3">
             {page.images.map((src, i) => (
               <li
                 key={i}
-                className="relative aspect-[16/10] max-h-[25vh] sm:max-h-[200px] overflow-hidden rounded-lg bg-sand"
+                className="relative aspect-[16/10] overflow-hidden rounded-lg bg-sand"
               >
                 <Image
                   src={src}
