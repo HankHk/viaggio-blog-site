@@ -4,14 +4,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import type { Trip } from "@/types/trip";
+import { TripLikeButton } from "@/components/trip/TripLikeButton";
 
 interface TripCardProps {
   trip: Trip;
   index: number;
   priority?: boolean;
+  browserLiked: boolean;
+  browserLikes: number;
 }
 
-export function TripCard({ trip, index, priority = false }: TripCardProps) {
+export function TripCard({
+  trip,
+  index,
+  priority = false,
+  browserLiked,
+  browserLikes,
+}: TripCardProps) {
   const coverImage = trip.images[0] ?? "";
 
   return (
@@ -22,7 +31,18 @@ export function TripCard({ trip, index, priority = false }: TripCardProps) {
       className="group"
     >
       <Link href={`/viaggi/${trip.slug}`} className="block">
-        <div className="overflow-hidden rounded-2xl border border-sand bg-pearl shadow-md transition-all duration-300 ease-out hover:border-leaf/30 hover:shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl border border-sand bg-pearl shadow-md transition-all duration-300 ease-out hover:border-leaf/30 hover:shadow-lg">
+          <div className="absolute right-3 top-3 z-[20]">
+            <TripLikeButton
+              slug={trip.slug}
+              initialLikes={browserLikes}
+              initialLiked={browserLiked}
+              onButtonClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            />
+          </div>
           <div className="flex flex-col sm:flex-row">
             <div className="relative h-48 w-full shrink-0 sm:h-52 sm:w-56">
               <Image

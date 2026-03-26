@@ -24,7 +24,17 @@ export function normalizeTrip(trip: Trip): Trip {
       images: block.images,
     };
   });
-  return { ...trip, content };
+  const likedByBrowsers = Array.isArray(trip.likedByBrowsers)
+    ? trip.likedByBrowsers.filter(
+        (id): id is string => typeof id === "string" && id.trim().length > 0,
+      )
+    : [];
+  const likes =
+    typeof trip.likes === "number" && trip.likes >= 0
+      ? Math.max(trip.likes, likedByBrowsers.length)
+      : likedByBrowsers.length;
+
+  return { ...trip, content, likedByBrowsers, likes };
 }
 
 async function loadTripsFromFile(): Promise<Trip[]> {

@@ -135,6 +135,7 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
   if (isEdit) {
     const index = trips.findIndex((t) => t.slug === editSlug);
     if (index === -1) return { success: false, error: "Viaggio da modificare non trovato." };
+    const existing = trips[index];
     trip = {
       title,
       slug: editSlug,
@@ -144,6 +145,8 @@ export async function addTripAction(_prev: unknown, formData: FormData): Promise
       content,
       images: imagesToUse,
       tags: parseList(tagsRaw || ""),
+      likes: existing.likes ?? 0,
+      likedByBrowsers: existing.likedByBrowsers ?? [],
     };
     if (parseList(curiositiesRaw || "").length > 0) trip.curiosities = parseList(curiositiesRaw || "");
     trips[index] = trip;

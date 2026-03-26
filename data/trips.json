@@ -23,7 +23,9 @@
     ],
     "curiosities": [
       "sdfdsf"
-    ]
+    ],
+    "likedByBrowsers": [],
+    "likes": 0
   },
   {
     "title": "TEST 6",
@@ -49,6 +51,10 @@
     ],
     "curiosities": [
       "aaaaaaaa"
-    ]
+    ],
+    "likedByBrowsers": [
+      "d6a7c507-260c-4268-b87a-f52ea0f706a1"
+    ],
+    "likes": 1
   }
 ]

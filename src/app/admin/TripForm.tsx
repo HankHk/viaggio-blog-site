@@ -59,6 +59,9 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
   const [draftTripMeta, setDraftTripMeta] = useState<DraftMeta>(
     initialTrip ? tripToDraftMeta(initialTrip) : emptyMeta
   );
+  const [curiositiesInput, setCuriositiesInput] = useState(
+    (initialTrip?.curiosities ?? []).join("\n")
+  );
   const [draftBlocks, setDraftBlocks] = useState<ContentBlock[]>(
     initialTrip?.content?.length
       ? initialTrip.content.map((b) => ({ title: b.title, text: b.text, images: b.images ?? [] }))
@@ -177,8 +180,12 @@ export function TripForm({ initialTrip = null }: TripFormProps) {
             <textarea
               id="curiosities"
               rows={4}
-              value={draftTripMeta.curiosities.join("\n")}
-              onChange={(e) => setDraftTripMeta((p) => ({ ...p, curiosities: parseList(e.target.value) }))}
+              value={curiositiesInput}
+              onChange={(e) => {
+                const value = e.target.value;
+                setCuriositiesInput(value);
+                setDraftTripMeta((p) => ({ ...p, curiosities: parseList(value) }));
+              }}
               className="w-full rounded border border-sand bg-white px-3 py-2"
             />
           </div>

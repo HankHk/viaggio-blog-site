@@ -16,4 +16,8 @@ export interface Trip {
   tags: string[];
   /** Sezione curiosità o highlight (opzionale) */
   curiosities?: string[];
+  /** Numero totale di like del viaggio. */
+  likes?: number;
+  /** Elenco identificativi browser che hanno messo like (uso interno). */
+  likedByBrowsers?: string[];
 }
