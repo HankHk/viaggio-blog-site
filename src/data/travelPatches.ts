@@ -18,7 +18,6 @@ export const travelPatches: TravelPatchData[] = [
   { city: "Tokyo", country: "Giappone", top: 18, left: 88, rotation: 12 },
   { city: "Parigi", country: "Francia", top: 28, left: 12, rotation: 5 },
   { city: "Londra", country: "Regno Unito", top: 42, left: 82, rotation: -10 },
-  { city: "Roma", country: "Italia", top: 55, left: 8, rotation: 7 },
   { city: "Berlino", country: "Germania", top: 62, left: 85, rotation: -6 },
   { city: "Sydney", country: "Australia", top: 72, left: 15, rotation: -12 },
   { city: "Il Cairo", country: "Egitto", top: 78, left: 90, rotation: 9 },
